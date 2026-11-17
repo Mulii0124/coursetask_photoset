@@ -1,0 +1,17 @@
+# Keep the published site byte-for-byte identical to the working tree.
+# All text assets (HTML/CSS/JS/MD) are committed with LF endings only.
+* text=auto eol=lf
+
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.md   text eol=lf
+*.py   text eol=lf
+
+# Binary assets are never touched.
+*.jpg  binary
+*.jpeg binary
+*.png  binary
+*.webp binary
+*.woff2 binary
+*.woff  binary
