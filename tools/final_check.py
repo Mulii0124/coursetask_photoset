@@ -26,10 +26,13 @@ def head(url):
 
 # ---- wait for the rebuild to pick up the new commit -----------------------
 print("waiting for Pages to serve the latest commit...")
+LOCAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "assets", "js", "site.js")
+LOCAL = os.path.normpath(LOCAL)
+want = os.path.getsize(LOCAL)
 for i in range(40):
-    h = raw(BASE + "index.html")
-    if b"data-role" in h:
-        print("  latest commit is live\n")
+    h = raw(BASE + "assets/js/site.js")
+    if len(h) == want:
+        print("  latest commit is live (%d bytes of site.js)\n" % want)
         break
     time.sleep(15)
 else:
