@@ -1,4 +1,12 @@
-"""Final acceptance check against the live GitHub Pages site."""
+"""Final acceptance check against the live GitHub Pages site.
+
+The page list is discovered from the local site directory, so the check always
+describes what is actually published instead of a hard-coded list that can drift
+out of date after a rebuild.
+
+    python _tools/final_check.py
+"""
+import hashlib
 import os
 import re
 import subprocess
@@ -9,6 +17,20 @@ BASE = "https://mulii0124.github.io/coursetask_photoset/"
 PROXY = "http://127.0.0.1:8899"
 ENV = dict(os.environ, HTTP_PROXY=PROXY, HTTPS_PROXY=PROXY)
 fails = []
+
+
+def find_site():
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = here
+    for _ in range(4):
+        for c in (d, os.path.join(d, "site")):
+            if os.path.isfile(os.path.join(c, "assets", "css", "site.css")):
+                return os.path.normpath(c)
+        d = os.path.dirname(d)
+    raise SystemExit("cannot locate the site root (assets/css/site.css)")
+
+
+SITE = find_site()
 
 
 def raw(url):
@@ -24,29 +46,35 @@ def head(url):
     return (r.stdout or "").strip()
 
 
+def local_pages():
+    return sorted(f for f in os.listdir(SITE)
+                  if f.endswith(".html") and not f.startswith("_"))
+
+
+PAGES = local_pages()
+
 # ---- wait for the rebuild to pick up the new commit -----------------------
 print("waiting for Pages to serve the latest commit...")
-LOCAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "assets", "js", "site.js")
-LOCAL = os.path.normpath(LOCAL)
-want = os.path.getsize(LOCAL)
+probe = "index.html"
+want = hashlib.sha256(open(os.path.join(SITE, probe), "rb").read()).hexdigest()
 for i in range(40):
-    h = raw(BASE + "assets/js/site.js")
-    if len(h) == want:
-        print("  latest commit is live (%d bytes of site.js)\n" % want)
+    got = hashlib.sha256(raw(BASE + probe)).hexdigest()
+    if got == want:
+        print("  latest commit is live (%s matches byte for byte)\n" % probe)
         break
     time.sleep(15)
 else:
     print("  TIMEOUT waiting for the rebuild")
-
-PAGES = ["index.html", "works.html", "series-garden.html", "series-lantern.html",
-         "series-sky.html", "series-street.html", "series-journey.html",
-         "journal.html", "about.html", "contact.html"]
+    fails.append("live site did not reach the latest commit")
 
 print("--- 1. pages ---")
+ok_pages = set()
 for p in PAGES:
     c = head(BASE + p)
     ok = c.startswith("200")
-    if not ok:
+    if ok:
+        ok_pages.add(p)
+    else:
         fails.append("page %s -> %s" % (p, c))
     print("  %s %-24s %s" % ("OK " if ok else "FAIL", p, c))
 
@@ -55,8 +83,10 @@ assets = set()
 for p in PAGES:
     html = raw(BASE + p).decode("utf-8", errors="replace")
     for m in re.finditer(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', html):
-        if not m.group(1).endswith(".html"):
-            assets.add(m.group(1))
+        v = m.group(1)
+        if v.endswith(".html") or v.startswith("data:") or v.startswith("#"):
+            continue
+        assets.add(v)
 bad = 0
 for a in sorted(assets):
     c = head(BASE + a)
@@ -68,6 +98,8 @@ print("  %d assets, %d failures" % (len(assets), bad))
 print("\n--- 3. no absolute paths / file:// / drive letters / absolute URLs ---")
 leaks = 0
 for p in PAGES:
+    if p not in ok_pages:
+        continue                      # a 404 body is GitHub's own page, not ours
     html = raw(BASE + p).decode("utf-8", errors="replace")
     for m in re.finditer(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', html):
         v = m.group(1)
@@ -107,6 +139,27 @@ print("\n--- 7. no external CDN dependency ---")
 cdn = re.findall(r'https?://(?!mulii0124\.github\.io)[^"\'\s)]+', idx)
 cdn = [c for c in cdn if "schema.org" not in c and "w3.org" not in c]
 print("  external refs in index.html:", cdn if cdn else "none")
+if cdn:
+    fails.append("external CDN dependency")
+
+print("\n--- 8. live page set == repo page set ---")
+linked = set(re.findall(r'href="([^"#?]+\.html)"', idx))
+linked |= {m.group(1) for p in PAGES for m in
+           [re.search(r'href="([^"#?]+\.html)"', raw(BASE + p).decode("utf-8", "replace"))] if m}
+live_set = {p for p in linked if "/" not in p}
+missing = sorted(set(PAGES) - live_set)
+stale = sorted(live_set - set(PAGES))
+print("  pages in repo : %d  %s" % (len(PAGES), ", ".join(PAGES)))
+print("  linked on live: %d  %s" % (len(live_set), ", ".join(sorted(live_set))))
+if missing:
+    print("  NOT LINKED:", missing)
+    fails.append("pages not linked from the live site: %s" % missing)
+if stale:
+    print("  STALE LINKS:", stale)
+    fails.append("stale page links on the live site: %s" % stale)
+if not missing and not stale:
+    print("  OK  every page is reachable and no page is left over")
 
 print("\n" + "=" * 60)
 print("RESULT:", "ALL CHECKS PASSED" if not fails else "FAILURES: %s" % fails)
+sys.exit(0 if not fails else 1)

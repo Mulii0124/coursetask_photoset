@@ -1,16 +1,40 @@
-"""Compare live Pages files against the local repository working tree (byte-exact)."""
+"""Compare live Pages files against the local repository working tree (byte-exact).
+
+The file list is discovered from the local repository, so it always describes
+what is actually published.
+"""
 import hashlib
 import os
 import subprocess
 
-REPO = r"D:\minimax_work\site"
 BASE = "https://mulii0124.github.io/coursetask_photoset/"
 ENV = dict(os.environ, HTTP_PROXY="http://127.0.0.1:8899", HTTPS_PROXY="http://127.0.0.1:8899")
 
-FILES = ["index.html", "works.html", "series-garden.html", "series-lantern.html",
-         "series-sky.html", "series-street.html", "series-journey.html",
-         "journal.html", "about.html", "contact.html",
-         "assets/css/site.css", "assets/js/site.js", ".nojekyll"]
+
+def find_repo():
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = here
+    for _ in range(4):
+        for c in (d, os.path.join(d, "site")):
+            if os.path.isfile(os.path.join(c, "assets", "css", "site.css")):
+                return os.path.normpath(c)
+        d = os.path.dirname(d)
+    raise SystemExit("cannot locate the site root (assets/css/site.css)")
+
+
+REPO = find_repo()
+
+# every html page + css + js + nojekyll, discovered from the repo
+FILES = []
+for root, dirs, names in os.walk(REPO):
+    dirs[:] = [x for x in dirs if x not in (".git", "tools", "__pycache__")]
+    for n in names:
+        if n.startswith("_"):
+            continue
+        rel = os.path.relpath(os.path.join(root, n), REPO).replace("\\", "/")
+        if rel.endswith((".html", ".css", ".js")) or n == ".nojekyll":
+            FILES.append(rel)
+FILES.sort()
 
 bad = []
 for rel in FILES:
@@ -19,10 +43,9 @@ for rel in FILES:
     live = r.stdout
     local = open(os.path.join(REPO, rel.replace("/", os.sep)), "rb").read()
     same = hashlib.sha256(live).hexdigest() == hashlib.sha256(local).hexdigest()
-    print("%-26s live=%-8d local=%-8d identical=%s" % (rel, len(live), len(local), same))
+    print("%-30s live=%-8d local=%-8d identical=%s" % (rel, len(live), len(local), same))
     if not same:
         bad.append(rel)
-        # show the first difference
         for i in range(min(len(live), len(local))):
             if live[i] != local[i]:
                 print("    first diff at byte %d" % i)
