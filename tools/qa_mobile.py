@@ -33,9 +33,7 @@ if len(sys.argv) > 2:
     H = int(sys.argv[2])
 TAG = "qa-mobile" if W < 800 else "qa-desktop"
 
-PAGES = ["index.html", "works.html", "series-garden.html", "series-lantern.html",
-         "series-sky.html", "series-street.html", "series-journey.html",
-         "journal.html", "about.html", "contact.html"]
+PAGES = sorted(f for f in os.listdir(SITE) if f.endswith(".html") and not f.startswith("_"))
 
 PROBE_HTML = """<!DOCTYPE html><html><head><meta charset="utf-8"><title>qa</title>
 <style>html,body{margin:0;padding:0;overflow:hidden}iframe{width:%dpx;height:%dpx;border:0;display:block}</style>

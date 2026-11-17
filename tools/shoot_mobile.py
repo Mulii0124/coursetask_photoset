@@ -21,7 +21,7 @@ SHOTS = [
     ("m-index",    "index.html",          0),
     ("m-catalogue", "index.html",         900),   # scroll offset inside the frame
     ("m-works",    "works.html",          0),
-    ("m-series",   "series-lantern.html", 0),
+    ("m-series",   "series-temple.html", 0),
     ("m-journal",  "journal.html",        0),
     ("m-about",    "about.html",          0),
     ("m-contact",  "contact.html",        0),

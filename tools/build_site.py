@@ -2,35 +2,54 @@
 Site generator — 木離 QIANJINGJING photography portfolio.
 
 Emits a self-contained static site into site/:
-    index.html  works.html  series-garden.html  series-lantern.html
-    series-sky.html  series-street.html  series-journey.html
+    index.html  works.html  series-begin.html  series-days.html
+    series-journey.html  series-temple.html
     journal.html  about.html  contact.html
 
 Every link and asset reference is relative. No absolute paths, no file://.
 """
 import json
 import os
+import sys
 from PIL import Image
 
-ROOT = r"D:\minimax_work"
-SITE = os.path.join(ROOT, "site")
 
-import sys
-sys.path.insert(0, r"D:\minimax_work\_tools")
+def _find_site():
+    """Locate the site root from wherever this script lives.
+
+    The script is kept in two places — the working copy in ``_tools/`` and a
+    tracked copy inside the repository at ``site/tools/`` — so the site root is
+    discovered instead of hard-coded.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = here
+    cands = []
+    for _ in range(4):
+        cands.append(d)
+        cands.append(os.path.join(d, "site"))
+        d = os.path.dirname(d)
+    for c in cands:
+        if os.path.isfile(os.path.join(c, "assets", "css", "site.css")):
+            return c
+    raise SystemExit("cannot locate the site root (assets/css/site.css)")
+
+
+SITE = _find_site()
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_assets import SERIES, PLATES   # noqa: E402
 
 NAME_CN = "木離"
 NAME_EN = "QIANJINGJING"
-YEAR_FROM, YEAR_TO = "2023", "2026"
+YEAR_FROM, YEAR_TO = "2022", "2026"
 
 PAGES = [
     ("index.html", "首页"),
     ("works.html", "作品"),
-    ("series-garden.html", "01 园"),
-    ("series-lantern.html", "02 灯"),
-    ("series-sky.html", "03 天"),
-    ("series-street.html", "04 街"),
-    ("series-journey.html", "05 旅"),
+    ("series-begin.html", "01 初"),
+    ("series-days.html", "02 日"),
+    ("series-journey.html", "03 旅"),
+    ("series-temple.html", "04 庙"),
     ("journal.html", "手记"),
     ("about.html", "关于"),
     ("contact.html", "联系"),
@@ -314,11 +333,11 @@ def build_index():
       <div class="hero__media">%s</div>
       <div class="hero__body">
         <span class="eyebrow hero__eyebrow" data-reveal="down">摄影作品集 · PHOTOGRAPHY COLLECTION · %s—%s</span>
-        <h1 class="hero__title" data-reveal="up">停在<em>光</em>里</h1>
-        <p class="hero__latin" data-reveal="up">Still Here</p>
+        <h1 class="hero__title" data-reveal="up">光有<em>来处</em></h1>
+        <p class="hero__latin" data-reveal="up">Where Light Comes From</p>
         <div class="hero__rule"></div>
         <div class="hero__foot">
-          <p class="hero__statement" data-reveal="up">五个系列，关于光如何落在一个地方——园林、庙会、屋脊、街道，以及一次长途的旅行。<br>Five series on the way light lands in a place.</p>
+          <p class="hero__statement" data-reveal="up">四个章节，关于一台相机怎么学会看——第一次按快门、学校的日常、一段长途，以及古庙屋檐下的那束光。<br>Four chapters on how a camera learns to see.</p>
           <div class="hero__actions" data-reveal="up">
             <a class="btn btn--accent" href="works.html"><span>查看作品</span><span class="btn__arrow">→</span></a>
             <a class="btn" href="#catalogue"><span>本页系列目录</span><span class="btn__arrow">↓</span></a>
@@ -335,7 +354,7 @@ def build_index():
     <div class="section__head" data-reveal="up">
       <span class="eyebrow section__index">01 — 精选作品 / SELECTED SERIES</span>
       <h2 class="section__title">系列目录</h2>
-      <p class="section__latin">Five series · %s—%s</p>
+      <p class="section__latin">Four series · %s—%s</p>
     </div>
     <div class="cat">
       <ol class="cat__list" role="listbox" aria-label="系列目录" data-reveal="up">
@@ -361,13 +380,13 @@ def build_index():
     <div class="notes" style="margin-top:clamp(46px,8vh,96px)">
       <div class="note" data-reveal="up">
         <span class="note__no">NOTE 01</span>
-        <h4>关于等待</h4>
-        <p>我通常比现场的人早到半小时。不是为了抢光，而是为了看清一个地方在没有人的时候是什么样子。</p>
+        <h4>关于第一次</h4>
+        <p>第一批照片没有构图，也没有人教我怎么构图。我把它们按拍下来的顺序排在一起，因为顺序本身就是我学会看的时间线。</p>
       </div>
       <div class="note" data-reveal="up">
         <span class="note__no">NOTE 02</span>
-        <h4>关于黑白</h4>
-        <p>黑不是去掉颜色，是让形状自己说话。鸟、屋脊、闪电——这些题材一旦去色，轮廓会更狠。</p>
+        <h4>关于等待</h4>
+        <p>我通常比现场的人早到半小时。不是为了抢光，而是为了看清一个地方在没有人的时候是什么样子。</p>
       </div>
       <div class="note" data-reveal="up">
         <span class="note__no">NOTE 03</span>
@@ -383,11 +402,11 @@ def build_index():
   <div class="story__body">
     <div class="u-wrap u-max">
       <span class="eyebrow" data-reveal="up">02 — 重点故事 / KEY STORY</span>
-      <h2 class="story__title" data-reveal="up" style="margin-top:14px">庙会第三夜，风把两盏灯吹到了同一根枝上。</h2>
+      <h2 class="story__title" data-reveal="up" style="margin-top:14px">庙会那天下午，太阳从两排灯笼中间烧了过去。</h2>
       <div class="story__meta" data-reveal="up">
-        <span>灯 / LANTERN</span><span>2023</span><span>北方 · 庙会</span><span>第 01 帧 / 12</span>
+        <span>庙 / TEMPLE</span><span>2023</span><span>古庙 · 檐下与香</span><span>第 02 帧 / 09</span>
       </div>
-      <p class="lead-en" data-reveal="up" style="margin-top:22px">On the third night of the fair the wind moved two lanterns onto the same branch. The sun was already behind the roof, and everything that remained was borrowed light.</p>
+      <p class="lead-en" data-reveal="up" style="margin-top:22px">On the afternoon of the temple fair the sun burned its way through the two rows of lanterns. The plum was already out, and the light between them lasted only a few minutes.</p>
     </div>
   </div>
 </section>
@@ -402,18 +421,20 @@ def build_index():
     <div class="profile">
       <figure class="profile__portrait" data-reveal="up">
         %s
-        <figcaption>人物 · 石缝 / FIGURE IN THE ROCK · 2023</figcaption>
+        <figcaption>人物 · 水边 / FIGURE BY THE WATER · 2026</figcaption>
       </figure>
       <div class="profile__text">
         <h3 data-reveal="up">创作理念</h3>
-        <p data-reveal="up">我的起点很具体：一个人在一条街的尽头站着，光从侧面来。于是我开始等光，而不是等地点。<br>拍照对我来说更像一种记录习惯——同一个地方我会反复回去，直到它开始认出我。</p>
+        <p data-reveal="up">我拍的不是地方，是光落在地方上的方式。<br>
+        校园是一间很大的暗房，古庙把天空切成一条缝，长途旅行只教给我一件事：先看，再决定要不要拍。<br>
+        所以我的照片常常没有人在画面中心，但总有一处正在被照亮。</p>
         <h3 data-reveal="up">经历</h3>
         <div class="cv" data-reveal="up">
-          <div class="cv__row"><b>2022</b><span>开始使用可换镜头相机记录校园与周边，尝试把「练习」变成「系列」</span></div>
-          <div class="cv__row"><b>2023</b><span>完成「园」「灯」两组系列，建立统一的对比与色彩校准流程</span></div>
-          <div class="cv__row"><b>2024</b><span>开始为画面加入更多人物与叙事元素，「街」系列成形</span></div>
+          <div class="cv__row"><b>2022</b><span>拍下第一批照片——它们没有主题，只有顺序</span></div>
+          <div class="cv__row"><b>2023</b><span>校园成为固定拍摄地，完成「日」与「庙」两组系列，建立统一的校准流程</span></div>
+          <div class="cv__row"><b>2024</b><span>重心从「拍到」转向「看到」，开始为画面加入人与叙事</span></div>
           <div class="cv__row"><b>2026</b><span>第一次长线远行，完成「旅」系列与航拍部分</span></div>
-          <div class="cv__row"><b>NOW</b><span>在做「园」的十年计划——同一处园林，每年同一个窗口回去一次</span></div>
+          <div class="cv__row"><b>NOW</b><span>在做「日」的三年计划——同一处校园，每年同一个窗口回去一次</span></div>
         </div>
         <p data-reveal="up" style="margin-top:28px"><a class="btn btn--ink" href="about.html"><span>完整介绍</span><span class="btn__arrow">→</span></a></p>
       </div>
@@ -421,18 +442,18 @@ def build_index():
   </div>
 </section>
 """ % (
-        img("assets/img/cover/hero.jpg", "夜色中倒映在水面的城市灯光", lazy=False),
+        img("assets/img/cover/hero.jpg", "落日从云缝里烧过去，落在学校的楼顶上方", lazy=False),
         YEAR_FROM, YEAR_TO,
         YEAR_FROM, YEAR_TO,
         "\n        ".join(cat_items),
-        img("assets/img/garden/cover-garden.jpg", "园 · 江南园林", extra='data-role="a"', cls="slot__img is-active", lazy=False),
-        img("assets/img/lantern/cover-lantern.jpg", "灯 · 庙会", extra='data-role="b" aria-hidden="true"', cls="slot__img"),
+        img("assets/img/begin/cover-begin.jpg", "初 · 水中的柳", extra='data-role="a"', cls="slot__img is-active", lazy=False),
+        img("assets/img/days/cover-days.jpg", "日 · 校园的绣球", extra='data-role="b" aria-hidden="true"', cls="slot__img"),
         locs,
-        img("assets/img/cover/story.jpg", "逆光中的红色灯笼与树枝", lazy=False),
+        img("assets/img/cover/story.jpg", "逆光中的灯笼与树枝", lazy=False),
         NAME_CN, NAME_EN,
-        img("assets/img/cover/portrait.jpg", "石缝中的人物", lazy=False),
+        img("assets/img/cover/portrait.jpg", "坐在水边石堤上的人，手里握着一台相机", lazy=False),
     )
-    return page("摄影作品集", "%s %s 摄影作品集：园林、庙会、屋脊、街道与一次长途的旅行，%s—%s。" % (NAME_CN, NAME_EN, YEAR_FROM, YEAR_TO), "index.html", body)
+    return page("摄影作品集", "%s %s 摄影作品集：起步、校园日常、一次长途的旅行与古庙，%s—%s。" % (NAME_CN, NAME_EN, YEAR_FROM, YEAR_TO), "index.html", body)
 
 
 def build_works():
@@ -462,7 +483,7 @@ def build_works():
     <div class="section__head" data-reveal="up">
       <span class="eyebrow section__index">作品 / WORKS</span>
       <h1 class="cn-display" style="font-size:clamp(2.8rem,10vw,8rem);letter-spacing:.1em">全部作品</h1>
-      <p class="section__latin">Five series · %s—%s</p>
+      <p class="section__latin">Four series · %s—%s</p>
     </div>
     <div class="works">
       %s
@@ -476,32 +497,37 @@ def build_works():
 
 def build_journal():
     entries = [
-        ("01", "2023.03", "江南 · 园林", "第一组园林照片，是在等一场不会来的雨。",
-         "三月的江南多雨，我从第一次带相机出门起就在等雨。那天雨一直没下，我就一直坐在廊下看光线从砖地移到假山上。\n"
-         "后来我明白，等不到雨的时候才是最好的部分——没有戏剧性，只有缓慢移动的影子。\n"
-         "这一组照片大多是这样来的：没有事件，只有时间。",
-         "assets/img/garden/garden-01.jpg", "绣球 · 六月的第一周"),
-        ("02", "2023.08", "北方 · 庙会", "庙会的光是人造的，所以它结束得也很快。",
-         "庙会只有三天。我连去三天，第三天把相机挂在了腰上，几乎没有举起来——那些逆光的画面，靠的是站的位置，不是技巧。\n"
-         "夜里十一点，人开始散，灯还亮着。那一刻的画面比白天好，因为没有人再挡光。",
-         "assets/img/lantern/lantern-01.jpg", "逆光 · 灯"),
-        ("03", "2024.05", "城中 · 街道", "我把城市拍成了一张水面的倒影。",
-         "有一晚下过雨之后，我在便利店门口站了很久，最后只拍了一张水面上的灯光倒影。\n"
-         "那张照片后来成了「街」系列的封面。它提醒我：最像一座城市的，未必是它的建筑。",
-         "assets/img/street/street-08.jpg", "夜的水面"),
-        ("04", "2024.09", "城郊 · 屋脊", "鸟比天气预报更早知道要下雨。",
-         "屋脊上的鸟群是我一整年反复拍的题材。开始我拍它们飞的样子，后来才拍到它们停下来的样子。\n"
-         "停下来才是更难的那一张。",
-         "assets/img/sky/sky-02.jpg", "群鸟"),
-        ("05", "2026.08", "远方 · 街市", "第一次带着无人机的八天。",
-         "出发前两周才开始研究航拍规则，落地后才发现大多数地方根本不能飞。\n"
-         "于是那八天里，大部分照片还是在地面上拍的——这反而更像我习惯的方式。\n"
-         "唯一一次飞起来是在海边，风很大，飞机差点没回来。",
-         "assets/img/journey/journey-13.jpg", "水中的门"),
-        ("06", "2026.08", "远方 · 海岸", "航班延误四小时，于是有了云上的那张照片。",
-         "原本要坐的那班飞机晚点了四个小时，我在候机楼的窗边拍下了云层。\n"
-         "后来整理照片时发现，这张在地面拍的云，比我在高空拍的所有海面都好。",
-         "assets/img/journey/journey-15.jpg", "白花与远山"),
+        ("01", "2022—2023", "起步 · 街巷", "第一批照片里有一只猫，我按了快门，然后什么也没想。",
+         "相机是借来的，存储卡是最便宜的那种。我不知道该拍什么，就对着能看见的东西按快门。\n"
+         "那批照片有一只坐在干草里的猫，有一个写着「40」的限速牌，还有一张被电线切开的天空。\n"
+         "后来整理的时候我才发现，我一直在拍同一件事：光落在什么地方。",
+         "assets/img/begin/begin-03.jpg", "猫"),
+        ("02", "2023", "校园 · 黄昏", "云压得很低，有一条光从云缝里烧过去，我等它烧完。",
+         "那是一个傍晚，我在教学楼之间绕了很久，找一个能把天空放进画框的角度。\n"
+         "最后停在一堵墙和另一栋楼之间：左边全黑，右边云缝里有一条正在烧完的光。\n"
+         "那张照片后来成了整个作品集的开场。我想，拍光就是拍它只剩下几分钟的那段时间。",
+         "assets/img/days/days-02.jpg", "晚照"),
+        ("03", "2023.09", "古庙 · 檐下", "鸟从屋檐的缝隙里穿过去，那天我一张也没拍到它们停下。",
+         "同一天上午我还在校园里拍过一片田野，到了下午，人已经在另一座庙的檐下。\n"
+         "屋檐把天空切成一条很窄的缝，鸟群从缝里过。我举着相机等了四十分钟，\n"
+         "拍到的全是飞行中的一团影子，没有一张是停住的。\n"
+         "后来我才明白，鸟不下来才是那座庙真正的样子。",
+         "assets/img/temple/temple-01.jpg", "檐与群鸟"),
+        ("04", "2023", "校园 · 银杏", "银杏把整条路点着，我拍了六次才拍到没有人的那一张。",
+         "银杏最好看的那天也是人最多的那天。我换了三个位置、五个时间，\n"
+         "最后选的是早上七点，整条路是金的，只有扫地的阿姨在画面边缘。\n"
+         "她没有抬头，那张也没有。",
+         "assets/img/days/days-06.jpg", "银杏"),
+        ("05", "2026.08", "远方 · 街市", "出发的第二天，我不再找构图，只是看。",
+         "第一天的照片全是地标，很努力，很一般。\n"
+         "第二天下雨，我在便利店门口坐着，看鹿在公园里低头，看路口的车灯把雨照成两条线。\n"
+         "我一张也没有拍。那天晚上整理，决定只留三张。",
+         "assets/img/journey/journey-02.jpg", "十字路口"),
+        ("06", "2026.08", "远方 · 水边", "最后一张是在堤上拍的，无人机在包里，没有拿出来。",
+         "相机包里还剩一台微型无人机，那天海边风很大，没有起飞。\n"
+         "我就坐在堤上，看一个人背对着水拍照，看了很久。\n"
+         "后来那张背影也成了这一组里我最喜欢的一张。",
+         "assets/img/journey/journey-11.jpg", "湖边"),
     ]
     blocks = []
     for no, date, place, title, body, img_rel, cap in entries:
@@ -532,7 +558,7 @@ def build_journal():
   </div>
 </section>
 """ % (YEAR_FROM, YEAR_TO, "\n      ".join(blocks))
-    desc = "%s %s 的拍摄手记：关于等待、黑白、修图与远行。" % (NAME_CN, NAME_EN)
+    desc = "%s %s 的拍摄手记：关于第一次、等待、黑白、修图与远行。" % (NAME_CN, NAME_EN)
     return page("拍摄手记", desc, "journal.html", body)
 
 
@@ -548,32 +574,33 @@ def build_about():
     <div class="profile">
       <figure class="profile__portrait" data-reveal="up">
         %s
-        <figcaption>人物 · 石缝 / FIGURE IN THE ROCK · 2023</figcaption>
+        <figcaption>人物 · 水边 / FIGURE BY THE WATER · 2026</figcaption>
       </figure>
       <div class="profile__text">
         <h3 data-reveal="up">创作理念</h3>
-        <p data-reveal="up">我的起点很具体：一个人在一条街的尽头站着，光从侧面来。于是我开始等光，而不是等地点。<br>
-        我不拍「风景」，我拍光落下来的方式——它停在哪一块砖上，哪一片叶子被穿过去，哪一瞬间屋脊上的鸟全部离开。<br>
+        <p data-reveal="up">我不拍「风景」，我拍光落下来的方式——它停在哪一块砖上，哪一片叶子被穿过去，哪一瞬间屋檐上的鸟全部离开。<br>
+        校园是一间很大的暗房；古庙把天空切成一条缝；长途旅行只教给我一件事：先看，再决定要不要拍。<br>
         所以我的照片常常没有人在画面中心，但总有一处正在被照亮。</p>
         <p data-reveal="up">我的方法很笨：同一个地方反复回去，每年同一个窗口，不同的天气。拍到第三年，那个地方开始有我的痕迹，
-        我也开始能预判它的光。十个系列的「园」就是这个计划的第一次尝试。</p>
+        我也开始能预判它的光。「日」系列的三年计划就是这个方法的第一次正式尝试。</p>
 
         <h3 data-reveal="up">经历</h3>
         <div class="cv" data-reveal="up">
-          <div class="cv__row"><b>2022</b><span>开始使用可换镜头相机记录校园与周边，尝试把「练习」变成「系列」</span></div>
-          <div class="cv__row"><b>2023</b><span>完成「园」「灯」两组系列，建立统一的对比与色彩校准流程</span></div>
-          <div class="cv__row"><b>2024</b><span>开始为画面加入更多人物与叙事元素，「街」系列成形</span></div>
-          <div class="cv__row"><b>2025</b><span>系统整理 2022—2024 的全部底片，按主题重新归入五个系列</span></div>
+          <div class="cv__row"><b>2022</b><span>拍下第一批照片——它们没有主题，只有顺序</span></div>
+          <div class="cv__row"><b>2023</b><span>校园成为固定拍摄地，完成「日」与「庙」两组系列，建立统一的校准流程</span></div>
+          <div class="cv__row"><b>2024</b><span>重心从「拍到」转向「看到」，开始为画面加入人与叙事</span></div>
+          <div class="cv__row"><b>2025</b><span>系统整理全部底片，按四个主题重新归组（set1—set4）</span></div>
           <div class="cv__row"><b>2026</b><span>第一次长线远行，完成「旅」系列与航拍部分</span></div>
-          <div class="cv__row"><b>NOW</b><span>在做「园」的十年计划——同一处园林，每年同一个窗口回去一次</span></div>
+          <div class="cv__row"><b>NOW</b><span>在做「日」的三年计划——同一处校园，每年同一个窗口回去一次</span></div>
         </div>
 
         <h3 data-reveal="up">工作方式与器材</h3>
         <div class="cv" data-reveal="up">
-          <div class="cv__row"><b>机身</b><span>奥林巴斯可换镜头相机（室内与手持主力）</span></div>
-          <div class="cv__row"><b>航拍</b><span>DJI 微型无人机（2026 年旅途中开始使用）</span></div>
+          <div class="cv__row"><b>机身</b><span>奥林巴斯 E-M10（校园、古庙与远行的主力）</span></div>
+          <div class="cv__row"><b>手机</b><span>OPPO A9x 拍下 2022 年的第一批；iPhone 拍下 2026 年路上的随手拍</span></div>
+          <div class="cv__row"><b>航拍</b><span>DJI Mini 微型无人机（2026 年旅途中开始使用，也拍下了那张水边的人物照）</span></div>
           <div class="cv__row"><b>后期</b><span>统一对比度与饱和度校准；黑白题材单独暖调处理</span></div>
-          <div class="cv__row"><b>归档</b><span>每个系列一个文件夹，文件名统一为「系列-序号」，与本页目录对应</span></div>
+          <div class="cv__row"><b>归档</b><span>按主题分成 set1—set4 四个文件夹，与本页目录一一对应</span></div>
         </div>
 
         <p data-reveal="up" style="margin-top:28px">
@@ -585,7 +612,7 @@ def build_about():
   </div>
 </section>
 """ % (NAME_CN, NAME_EN, NAME_EN,
-       img("assets/img/cover/portrait.jpg", "石缝中的人物", lazy=False))
+       img("assets/img/cover/portrait.jpg", "坐在水边石堤上的人，手里握着一台相机", lazy=False))
     desc = "%s %s：摄影理念、创作经历与工作方式。" % (NAME_CN, NAME_EN)
     return page("摄影师介绍", desc, "about.html", body)
 

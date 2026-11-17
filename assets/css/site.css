@@ -595,7 +595,12 @@ ol, ul { list-style: none; padding: 0; }
 .story__media::after {
   content: "";
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(10,10,11,.35) 0%, rgba(10,10,11,.08) 40%, rgba(10,10,11,.88) 100%);
+  background: linear-gradient(180deg,
+    rgba(10,10,11,.30) 0%,
+    rgba(10,10,11,.14) 24%,
+    rgba(10,10,11,.46) 56%,
+    rgba(10,10,11,.80) 82%,
+    rgba(10,10,11,.94) 100%);
 }
 .story__body { position: relative; z-index: 2; width: 100%; padding: 0 var(--gut) clamp(40px, 8vh, 96px); }
 .story__title {
@@ -614,6 +619,26 @@ ol, ul { list-style: none; padding: 0; }
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--dim);
+}
+/* the story image is a full-bleed photo — the label sits over its brightest area,
+   so it gets a hard dark plate with an accent rule instead of a soft shadow */
+.story .eyebrow {
+  display: inline-block;
+  max-width: fit-content;
+  color: var(--paper);
+  background: rgba(10, 10, 11, 0.72);
+  border-left: 2px solid var(--accent);
+  padding: 8px 14px 7px;
+  letter-spacing: 0.3em;
+  text-shadow: none;
+}
+.story__meta {
+  color: rgba(242, 239, 233, 0.82);
+  text-shadow: 0 1px 3px rgba(10, 10, 11, .95), 0 0 16px rgba(10, 10, 11, .9), 0 0 38px rgba(10, 10, 11, .8);
+}
+.story__title { text-shadow: 0 2px 30px rgba(10, 10, 11, .5); }
+.story .lead-en {
+  text-shadow: 0 1px 3px rgba(10, 10, 11, .95), 0 0 16px rgba(10, 10, 11, .9), 0 0 38px rgba(10, 10, 11, .8);
 }
 
 /* ---------- 12. Plates (series pages) ---------- */

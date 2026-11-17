@@ -1,177 +1,208 @@
 """
-Asset pipeline v2 — 木離 QIANJINGJING photography portfolio.
+Asset pipeline v3 — 木離 QIANJINGJING photography portfolio.
 
-Two audited sources:
-  P<idx>  D:\\photo                     (own camera / phone frames)
-  T<idx>  D:\\photo\\日本旅行照片合集     (2026 Japan trip, drone + phone)
+Source: the photographer's own folders inside D:\\photo, created as the final
+curation of this portfolio:
 
-Applies one unified editorial grade so 60+ frames from two bodies read as a
-single commissioned set, then exports web-optimised progressive JPEGs plus
-24px blurred placeholders (LQIP) for the catalogue.
+    set1 刚开始接触相机    14 frames
+    set2 在学校的日常       16 frames
+    set3 旅游             16 frames
+    set4 古庙              9 frames
+    作者                   1 frame   (author portrait)
+
+set1 also contains seven `retouch_*.jpg` files: those are a photography studio's
+own summer-set samples (they carry the "Pe.Daphine vortex 2023" watermark and
+show the studio's album display and a model). They are not frames shot by the
+photographer, so they are deliberately never referenced below.
+
+One editorial grade is applied so that phone, Olympus and drone frames from
+four different years read as a single commissioned set. Output: progressive
+JPEG at three widths plus a 24px blurred placeholder per image.
 """
 import base64
 import io
 import json
 import os
-from PIL import Image, ImageOps, ImageEnhance
+import shutil
 
-ROOT = r"D:\minimax_work"
-SITE = os.path.join(ROOT, "site")
-M_LOCAL = r"D:\minimax_work\_tools\contact2\manifest2.json"
-M_TRAVEL = r"D:\minimax_work\_tools\contact\manifest.json"
+from PIL import Image, ImageEnhance, ImageOps
+
+def _find_site():
+    """Locate the site root from wherever this script lives.
+
+    The script is kept in two places — the working copy in ``_tools/`` and a
+    tracked copy inside the repository at ``site/tools/`` — so the site root is
+    discovered instead of hard-coded.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    d = here
+    cands = []
+    for _ in range(4):
+        cands.append(d)
+        cands.append(os.path.join(d, "site"))
+        d = os.path.dirname(d)
+    for c in cands:
+        if os.path.isfile(os.path.join(c, "assets", "css", "site.css")):
+            return c
+    raise SystemExit("cannot locate the site root (assets/css/site.css)")
+
+
+SITE = _find_site()
+
+# The photographer's own folders. Override with PHOTO_ROOT if they move.
+PHOTO_ROOT = os.environ.get("PHOTO_ROOT", r"D:\photo")
+
+SET_DIRS = {
+    "S1": os.path.join(PHOTO_ROOT, "set1 刚开始接触相机"),
+    "S2": os.path.join(PHOTO_ROOT, "set2 在学校的日常"),
+    "S3": os.path.join(PHOTO_ROOT, "set3 旅游"),
+    "S4": os.path.join(PHOTO_ROOT, "set4 古庙"),
+    "AU": os.path.join(PHOTO_ROOT, "作者"),
+}
 
 # ------------------------------------------------------------------ series ---
 SERIES = [
     {
-        "slug": "garden", "num": "01",
-        "cn": "园", "en": "GARDEN", "title_en": "A Season in the Garden",
-        "year": "2023", "place": "江南 · 园林", "place_en": "JIANGNAN / GARDEN",
-        "cover": "P33",
-        "lead": "园林是一种被安排过的自然。梅先开，绣球后至，银杏把整条走廊烧成金色。\n"
-                "我花了三年时间记录这种顺序——花不是同时盛开的，季节也不是。",
-        "lead_en": "A garden is nature with an order imposed on it. Plum first, hydrangea after, "
-                   "and ginkgo burning the whole corridor gold.\nThree years went into recording that order: "
-                   "flowers never open all at once, and neither do seasons.",
-        "note": "手记 · 第 41 页：绣球开了七次，我拍了六次。",
+        "slug": "begin", "num": "01",
+        "cn": "初", "en": "BEGINNING", "title_en": "Learning to Press the Shutter",
+        "year": "2022—2023", "place": "起步 · 街巷与水边", "place_en": "FIRST LIGHT / STREETS & WATER",
+        "cover": "S1_03",
+        "lead": "第一批照片没有构图，也没有主题。\n"
+                "有一只坐在干草里的猫，有夜里从高处看下去的城市灯网，"
+                "有一个写着「40」的限速牌，一张被电线切开的天空，"
+                "还有一池被倒过来的柳。\n"
+                "我按拍下来的顺序把它们放在一起——那顺序本身就是我学会看的时间线。",
+        "lead_en": "The first roll had no composition and no theme.\n"
+                   "A cat in dry grass. A city seen from above at night. "
+                   "A speed limit sign. A sky cut open by wires. A pool with the willows upside down.\n"
+                   "I keep them in the order I shot them — that order is the timeline of learning to see.",
+        "note": "手记 · 第一卷：还没有构图的时候",
     },
     {
-        "slug": "lantern", "num": "02",
-        "cn": "灯", "en": "LANTERN", "title_en": "Everything the Sun Leaves Behind",
-        "year": "2023", "place": "北方 · 庙会", "place_en": "NORTH / TEMPLE FAIR",
-        "cover": "P36",
-        "lead": "灯是临时造出来的太阳。\n庙会那几天，天黑得比往常早，人把光挂到树上，"
-                "于是树也亮起来——像一场短暂的、可以被收回的白天。",
-        "lead_en": "Lanterns are suns made on loan. During the fair, night arrives early; "
-                   "people hang light in the trees, and for a few hours the trees keep their own daytime.\n"
-                   "It is a temporary day, and it can be taken back down.",
-        "note": "手记 · 庙会第三夜，风把两盏灯吹到了同一根枝上。",
+        "slug": "days", "num": "02",
+        "cn": "日", "en": "DAYS", "title_en": "The Ordinary Hours",
+        "year": "2023", "place": "校园 · 树与光", "place_en": "CAMPUS / TREES & LIGHT",
+        "cover": "S2_14",
+        "lead": "学校是一间很大的暗房。\n"
+                "绣球开在树荫下面，银杏把整条路点着，操场边的下午很长，"
+                "黄昏的云一直压在校舍的屋顶上。\n"
+                "我在这里拍了一年零散的日常，直到承认日常本身就是一种题材。",
+        "lead_en": "A campus is a very large darkroom.\n"
+                   "Hydrangeas under the shade, ginkgo lighting up the whole avenue, "
+                   "long afternoons by the field, and a cloud sitting low on the school roof.\n"
+                   "I shot loose fragments here for a year before admitting that the everyday "
+                   "is a subject in its own right.",
+        "note": "手记 · 校园是一间大暗房",
     },
     {
-        "slug": "sky", "num": "03",
-        "cn": "天", "en": "SKY", "title_en": "Birds, Weather, Concrete",
-        "year": "2022—2023", "place": "城郊 · 屋脊", "place_en": "OUTSKIRTS / ROOFLINES",
-        "cover": "P34",
-        "lead": "我拍屋顶上的鸟拍了一年。\n它们比人更早决定天气：云压低，鸟先走；风转向，鸟最后动。",
-        "lead_en": "I photographed the birds on the rooflines for a full year.\n"
-                   "They decide the weather before we do: when the cloud drops the birds leave first; "
-                   "when the wind turns, the birds move last.",
-        "note": "手记 · 一张闪电拍了六次，第五次才有形状。",
+        "slug": "journey", "num": "03",
+        "cn": "旅", "en": "JOURNEY", "title_en": "Farther Than the Map",
+        "year": "2026", "place": "远方 · 一段长途", "place_en": "ELSEWHERE / A LONG WAY",
+        "cover": "S3_11",
+        "lead": "出发的第二天，我开始不再找构图，只是看。\n"
+                "鹿在公园里低头，石庭的沙被耙成一圈一圈，"
+                "傍晚的堤上有人背对着水坐着。\n"
+                "这些照片没有主题，只有距离——距离是唯一值得带回来的东西。",
+        "lead_en": "By the second day I stopped looking for compositions and simply looked.\n"
+                   "A deer lowering its head in the park; sand raked into circles in a stone garden; "
+                   "someone sitting on the sea wall with their back to the water.\n"
+                   "These frames have no theme, only distance — and distance is the only "
+                   "thing worth bringing back.",
+        "note": "手记 · 不再找构图的那几天",
     },
     {
-        "slug": "street", "num": "04",
-        "cn": "街", "en": "STREET", "title_en": "The City, Briefly",
-        "year": "2022—2023", "place": "城中 · 街道", "place_en": "CITY / STREET LEVEL",
-        "cover": "P23",
-        "lead": "城市只在晚上承认自己在发光。\n白天它是一堆建筑，夜里倒过来，变成水面上的一团碎光。",
-        "lead_en": "A city only admits it is glowing after dark.\nBy day it is a heap of buildings; "
-                   "by night it turns into a handful of broken lights on water.",
-        "note": "手记 · 那晚没带相机，回来用手机拍下了水面的倒影。",
-    },
-    {
-        "slug": "journey", "num": "05",
-        "cn": "旅", "en": "JOURNEY", "title_en": "Eight Days, Five Places",
-        "year": "2026", "place": "远方 · 五个地方", "place_en": "ON THE ROAD / FIVE PLACES",
-        "cover": "T53",
-        "lead": "2026 年 8 月，八天，五个地方。\n"
-                "这一组是按地点编号而不是按时间排列的——离开之后，"
-                "时间会重新排列地点。",
-        "lead_en": "August 2026. Eight days, five places.\nThis set is ordered by location rather than by date, "
-                   "because once you leave, time rearranges the places for you.",
-        "note": "手记 · 航班延误四小时，于是有了那张云上的照片。",
+        "slug": "temple", "num": "04",
+        "cn": "庙", "en": "TEMPLE", "title_en": "Under the Eaves",
+        "year": "2023", "place": "古庙 · 檐下与香", "place_en": "TEMPLE / EAVES & INCENSE",
+        "cover": "S4_01",
+        "lead": "屋檐把天空切成一条缝，鸟从缝里穿过去。\n"
+                "香炉前的金色莲花摆得很整齐，风一吹，枝上的红灯笼就跟着晃。\n"
+                "这些庙我前后去过几次，每次都在同一个位置停下来——等那束光从瓦缝里落下来。",
+        "lead_en": "The eaves cut the sky into a slit, and the birds pass through it.\n"
+                   "The golden lotus flowers stand in neat rows before the incense burner; "
+                   "when the wind comes, the red lanterns move with it.\n"
+                   "I have photographed these temples several times and always stop in the same "
+                   "place — waiting for the light to come down between the tiles.",
+        "note": "手记 · 等一束光落下来",
     },
 ]
 
-# (source_id, ordinal, caption_cn, caption_en, extra_note)
-# source_id: "P<n>" = D:\photo, "T<n>" = 日本旅行照片合集
+# (source_id, ordinal, caption_cn, caption_en)
+# source_id: "S<n>_<idx>" = D:\photo\set<n> …, "AU_00" = D:\photo\作者
 PLATES = {
-    "garden": [
-        ("P33", "01", "绣球", "Hydrangea, first week of June"),
-        ("P31", "02", "银杏·逆光", "Ginkgo, backlit"),
-        ("P30", "03", "银杏", "Ginkgo, full canopy"),
-        ("P26", "04", "竹林", "Bamboo"),
-        ("P27", "05", "水边的树", "A tree at the water's edge"),
-        ("P41", "06", "梅枝与池", "Plum over the pond"),
-        ("P2",  "07", "粉色花枝", "Pink blossom, out of focus"),
-        ("P38", "08", "梅", "Plum, close"),
-        ("P3",  "09", "白梅", "White plum"),
-        ("P0",  "10", "郁金香", "Tulips"),
-        ("P29", "11", "波斯菊", "Cosmos"),
-        ("P8",  "12", "落花", "Fallen petals"),
+    "begin": [
+        ("S1_03", "01", "水中的柳", "A willow in the water"),
+        ("S1_01", "02", "夜里的城", "The city at night"),
+        ("S1_00", "03", "猫", "A cat"),
+        ("S1_02", "04", "限速四十", "Forty kilometres"),
+        ("S1_04", "05", "被电线切开的天空", "A sky cut by wires"),
+        ("S1_05", "06", "石头上的孩子", "A child on the stone"),
     ],
-    "lantern": [
-        ("P39", "01", "逆光·灯", "Lanterns, backlit"),
-        ("P36", "02", "黄灯笼与梅", "Yellow lanterns and plum"),
-        ("P43", "03", "枝上的灯", "Lanterns in the branches"),
-        ("P40", "04", "红灯", "Red lanterns"),
-        ("P44", "05", "蓝天下的灯", "Lanterns against blue"),
-        ("P35", "06", "灯市", "The lantern fair"),
-        ("P24", "07", "飞檐", "Eaves"),
-        ("P22", "08", "斗拱", "Bracket sets"),
-        ("P19", "09", "暮色", "Dusk on a wall"),
-        ("P15", "10", "屋脊上的群鸟", "Birds over the roof"),
-        ("P5",  "11", "石门", "Stone gate"),
-        ("P1",  "12", "老屋", "Old houses"),
-    ],
-    "sky": [
-        ("P34", "01", "松", "Pine against grey"),
-        ("P20", "02", "群鸟", "The flock"),
-        ("P28", "03", "树", "Trees"),
-        ("P18", "04", "天上的鸟", "Birds in open sky"),
-        ("P16", "05", "闪电", "Lightning"),
-        ("P17", "06", "闪电 II", "Lightning, second frame"),
-        ("P37", "07", "树与天", "Trees and sky"),
-        ("P13", "08", "树冠", "Canopy"),
-        ("P12", "09", "天桥", "Overpass"),
-        ("P10", "10", "公园的下午", "An afternoon in the park"),
-        ("P11", "11", "街道与树", "Street and trees"),
-        ("P21", "12", "田野", "Field"),
-    ],
-    "street": [
-        ("P23", "01", "石缝里的人", "Figure in the rock"),
-        ("P7",  "02", "路口", "The crossing"),
-        ("P4",  "03", "猫", "A cat"),
-        ("P32", "04", "河与城市", "River and city"),
-        ("P42", "05", "湖石上的人", "Figure on the stone"),
-        ("P14", "06", "窗台上的蓝", "Blue on the sill"),
-        ("P25", "07", "金", "Gold vessels"),
-        ("P6",  "08", "夜的水面", "Night water"),
+    "days": [
+        ("S2_14", "01", "绣球", "Hydrangea"),
+        ("S2_05", "02", "晚照", "Sunset through the clouds"),
+        ("S2_03", "03", "树影与天空", "Trees against the sky"),
+        ("S2_06", "04", "云", "Cloud over the roof"),
+        ("S2_15", "05", "灯市", "Lanterns and balloons"),
+        ("S2_11", "06", "银杏", "Ginkgo"),
+        ("S2_12", "07", "逆光的银杏", "Ginkgo, backlit"),
+        ("S2_10", "08", "波斯菊", "Cosmos"),
+        ("S2_13", "09", "河与城市", "River and city"),
+        ("S2_01", "10", "操场边的下午", "An afternoon by the field"),
+        ("S2_02", "11", "天桥", "The overpass"),
+        ("S2_04", "12", "窗台上的水盆", "Basins by the window"),
+        ("S2_00", "13", "桌上的画", "A drawing on the desk"),
+        ("S2_07", "14", "田野与电塔", "Fields and pylons"),
+        ("S2_08", "15", "路牌与树", "The sign and the tree"),
+        ("S2_09", "16", "秋", "Autumn"),
     ],
     "journey": [
-        ("T7",   "01", "商店街的彩帘", "Market streamers"),
-        ("T8",   "02", "纸垂", "Paper streamers"),
-        ("T16",  "03", "寺门", "The temple gate"),
-        ("T28",  "04", "鹿与人", "Deer and a stranger"),
-        ("T31",  "05", "鹿", "The deer, close"),
-        ("T50",  "06", "鹿群", "The herd"),
-        ("T53",  "07", "铁塔", "The tower"),
-        ("T72",  "08", "十字路口", "The scramble"),
-        ("T38",  "09", "雨中的横道", "A crossing in the rain"),
-        ("T0",   "10", "雨夜的街口", "A corner in the rain"),
-        ("T51",  "11", "杜鹃的坡", "The azalea slope"),
-        ("T114", "12", "林中的亭子", "Pavilion"),
-        ("T95",  "13", "水中的门", "A gate standing in the water"),
-        ("T65",  "14", "机翼与落日", "Wing and sunset"),
-        ("T140", "15", "白花与远山", "White flowers and a distant ridge"),
-        ("T137", "16", "海边的路", "Road along the water"),
+        ("S3_11", "01", "塔", "Pagoda"),
+        ("S3_06", "02", "十字路口", "The scramble"),
+        ("S3_05", "03", "铁塔", "The tower"),
+        ("S3_00", "04", "街与塔", "A street and a tower"),
+        ("S3_01", "05", "城", "The castle, in black and white"),
+        ("S3_02", "06", "两杯冰咖啡", "Two iced coffees"),
+        ("S3_03", "07", "鹿", "A deer"),
+        ("S3_04", "08", "街角", "A corner abroad"),
+        ("S3_07", "09", "石庭", "Stones and sand"),
+        ("S3_08", "10", "海港", "The waterfront"),
+        ("S3_09", "11", "湖边", "At the lake"),
+        ("S3_10", "12", "木栏", "At the wooden rail"),
+        ("S3_12", "13", "青柚", "A green fruit"),
+        ("S3_13", "14", "长椅上", "On the bench"),
+        ("S3_14", "15", "河口", "The river mouth"),
+        ("S3_15", "16", "海边的路", "Road along the sea"),
+    ],
+    "temple": [
+        ("S4_01", "01", "檐与群鸟", "Eaves and a flock"),
+        ("S4_07", "02", "逆光的灯笼", "Lanterns, backlit"),
+        ("S4_06", "03", "黄灯笼与梅", "Yellow lanterns and plum"),
+        ("S4_08", "04", "梅枝与池", "Plum over the pond"),
+        ("S4_00", "05", "飞檐", "The flying eave"),
+        ("S4_02", "06", "鸟群", "Birds in the sky"),
+        ("S4_03", "07", "层檐", "Layered eaves"),
+        ("S4_04", "08", "香与莲", "Incense and lotus"),
+        ("S4_05", "09", "竹林", "Bamboo"),
     ],
 }
 
 # full-bleed / special images
-HERO = ("P6", "cover", "hero")            # night water reflections
-STORY = ("P39", "cover", "story")        # backlit lanterns
-PORTRAIT = ("P23", "cover", "portrait")  # figure framed by rock
-INTERLUDE = ("P26", "cover", "interlude")  # bamboo
+HERO = "S2_05"      # light on the corrugated wall
+STORY = "S4_07"     # backlit lanterns under the branches
+PORTRAIT = "AU_00"  # the photographer, from behind, by the water
 
 
 def build_catalog():
     cat = {}
-    m2 = json.load(open(M_LOCAL, encoding="utf-8"))
-    for i, rec in enumerate(m2):
-        cat["P%d" % i] = rec
-    m1 = json.load(open(M_TRAVEL, encoding="utf-8"))
-    for i, rec in enumerate(m1):
-        if i < 122 or i >= 128:      # skip the 8.26 assignment folder frames
-            cat["T%d" % i] = rec
+    for prefix, folder in SET_DIRS.items():
+        if not os.path.isdir(folder):
+            raise SystemExit("missing source folder: %s" % folder)
+        names = sorted(f for f in os.listdir(folder)
+                       if os.path.isfile(os.path.join(folder, f))
+                       and os.path.splitext(f)[1].lower() in (".jpg", ".jpeg", ".png", ".webp"))
+        for i, fn in enumerate(names):
+            cat["%s_%02d" % (prefix, i)] = {"name": fn, "path": os.path.join(folder, fn)}
     return cat
 
 
@@ -242,14 +273,14 @@ def main():
         emit(s["cover"], "assets/img/%s/cover-%s.jpg" % (s["slug"], s["slug"]), 1400, 79)
 
     print("== full bleed ==")
-    emit(HERO[0], "assets/img/cover/hero.jpg", 2600, 78)
-    emit(STORY[0], "assets/img/cover/story.jpg", 2600, 78)
-    emit(PORTRAIT[0], "assets/img/cover/portrait.jpg", 1200, 82)
-    emit(INTERLUDE[0], "assets/img/cover/interlude.jpg", 1600, 80)
+    emit(HERO, "assets/img/cover/hero.jpg", 2600, 78, force="color")
+    emit(STORY, "assets/img/cover/story.jpg", 2600, 78)
+    emit(PORTRAIT, "assets/img/cover/portrait.jpg", 1200, 82)
 
     out = os.path.join(SITE, "assets", "img", "lqip.json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    json.dump(lqips, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+    with open(out, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(lqips, f, ensure_ascii=False, indent=0)
 
     print("\n%d files, %.1f MB" % (n, total / 1048576))
 
