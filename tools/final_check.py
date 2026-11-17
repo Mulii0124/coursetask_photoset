@@ -62,13 +62,14 @@ for a in sorted(assets):
         bad += 1
 print("  %d assets, %d failures" % (len(assets), bad))
 
-print("\n--- 3. no absolute paths / file:// / drive letters ---")
+print("\n--- 3. no absolute paths / file:// / drive letters / absolute URLs ---")
 leaks = 0
 for p in PAGES:
     html = raw(BASE + p).decode("utf-8", errors="replace")
     for m in re.finditer(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', html):
         v = m.group(1)
-        if v.startswith("/") or v.lower().startswith("file:") or re.match(r"^[A-Za-z]:[\\/]", v):
+        if (v.startswith("/") or v.lower().startswith("file:") or re.match(r"^[A-Za-z]:[\\/]", v)
+                or re.match(r"^(?:https?:|mailto:|tel:|ftp:|//)", v, re.I)):
             print("  LEAK %s -> %s" % (p, v))
             leaks += 1
             fails.append("leak %s %s" % (p, v))

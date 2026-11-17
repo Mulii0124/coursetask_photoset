@@ -37,9 +37,11 @@ document.getElementById('f').addEventListener('load', function () {{
 }});
 </script></body></html>"""
 
-for name, page, scroll in SHOTS:
+for n, (name, page, scroll) in enumerate(SHOTS):
+    # unique cache-buster per shot: Edge would otherwise reuse the cached
+    # outer document and keep showing the previously captured page
     with open(TMP, "w", encoding="utf-8", newline="\n") as f:
-        f.write(TPL.format(w=W, h=H, src=page, scroll=scroll))
+        f.write(TPL.format(w=W, h=H, src=page + "?v=%d" % n, scroll=scroll))
     png = os.path.join(OUT, name + ".png")
     if os.path.exists(png):
         os.remove(png)
@@ -49,7 +51,7 @@ for name, page, scroll in SHOTS:
            "--virtual-time-budget=9000",
            "--window-size=%d,%d" % (W + 20, H + 20),
            "--screenshot=" + png,
-           "http://127.0.0.1:8099/_qa-frame.html"]
+           "http://127.0.0.1:8099/_qa-frame.html?v=%d" % n]
     subprocess.run(cmd, capture_output=True, text=True, timeout=180)
     print("%-12s %s" % (name, ("OK  %d KB" % (os.path.getsize(png) // 1024)) if os.path.exists(png) else "FAIL"))
 
