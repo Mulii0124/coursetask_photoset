@@ -39,12 +39,13 @@
       <div class="contact__cards" data-reveal="up">
         <div class="contact__card">
           <b>电子邮件 / Email</b>
-          <a href="mailto:1945004760@qq.com">1945004760@qq.com</a>
-          <button class="copy" data-copy="1945004760@qq.com" type="button">复制邮箱</button>
+          <a href="#composer" data-mail="1945004760@qq.com">1945004760@qq.com</a>
+          <button class="copy" data-copy="1945004760@qq.com" type="button" aria-label="复制邮箱地址">邮箱</button>
         </div>
         <div class="contact__card">
           <b>代码与作品 / GitHub</b>
-          <a href="https://github.com/Mulii0124" target="_blank" rel="noopener">github.com/Mulii0124</a>
+          <span>github.com/Mulii0124</span>
+          <button class="copy" data-copy="github.com/Mulii0124" data-copy-prefix="https://" type="button" aria-label="复制仓库地址">仓库地址</button>
         </div>
         <div class="contact__card">
           <b>所在地 / Based in</b>
@@ -56,7 +57,7 @@
         </div>
       </div>
 
-      <form class="composer" data-composer="1945004760@qq.com" data-reveal="up">
+      <form class="composer" id="composer" data-composer="1945004760@qq.com" data-reveal="up">
         <div class="composer__row">
           <label for="c-name">你的称呼 / Your name</label>
           <input id="c-name" name="name" type="text" autocomplete="name" placeholder="如何称呼你">

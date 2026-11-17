@@ -221,6 +221,8 @@
   $$('[data-copy]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var text = btn.getAttribute('data-copy');
+      var prefix = btn.getAttribute('data-copy-prefix') || '';
+      if (prefix) text = prefix + text;
       var done = function () {
         btn.classList.add('is-done');
         window.setTimeout(function () { btn.classList.remove('is-done'); }, 2200);
@@ -241,6 +243,17 @@
         try { document.execCommand('copy'); done(); } catch (err) { /* ignore */ }
         document.body.removeChild(ta);
       }
+    });
+  });
+
+  /* The address is rendered as a plain in-page link; the mail client is
+     opened at runtime so that no absolute mailto: URL lives in the markup. */
+  $$('[data-mail]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var to = link.getAttribute('data-mail');
+      if (!to) return;
+      e.preventDefault();
+      window.location.href = 'mailto:' + to;
     });
   });
 

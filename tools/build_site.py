@@ -54,10 +54,10 @@ def ratio_class(w, h):
     return "tall"
 
 
-def img(rel, alt, css="", extra="", cls="", lazy=True):
+def img(rel, alt, extra="", cls="", lazy=True):
     w, h = dims(rel)
     loading = ' decoding="async"' if lazy else ' decoding="async" fetchpriority="high"'
-    c = (" " + cls) if cls else ""
+    c = (' class="%s"' % cls) if cls else ""
     e = (" " + extra) if extra else ""
     return '<img src="%s" alt="%s" width="%d" height="%d"%s%s%s>' % (rel, alt, w, h, loading, c, e)
 
@@ -345,8 +345,7 @@ def build_index():
         <figure class="slot" data-slot>
           %s
           %s
-        </figure>
-        <figcaption class="cat__cap" data-cap></figcaption>
+        </figure>        <figcaption class="cat__cap" data-cap></figcaption>
       </div>
     </div>
   </div>
@@ -426,8 +425,8 @@ def build_index():
         YEAR_FROM, YEAR_TO,
         YEAR_FROM, YEAR_TO,
         "\n        ".join(cat_items),
-        img("assets/img/garden/cover-garden.jpg", "园 · 江南园林", lazy=False),
-        img("assets/img/lantern/cover-lantern.jpg", "灯 · 庙会"),
+        img("assets/img/garden/cover-garden.jpg", "园 · 江南园林", extra='data-role="a"', cls="slot__img is-active", lazy=False),
+        img("assets/img/lantern/cover-lantern.jpg", "灯 · 庙会", extra='data-role="b" aria-hidden="true"', cls="slot__img"),
         locs,
         img("assets/img/cover/story.jpg", "逆光中的红色灯笼与树枝", lazy=False),
         NAME_CN, NAME_EN,
@@ -604,12 +603,13 @@ def build_contact():
       <div class="contact__cards" data-reveal="up">
         <div class="contact__card">
           <b>电子邮件 / Email</b>
-          <a href="mailto:1945004760@qq.com">1945004760@qq.com</a>
-          <button class="copy" data-copy="1945004760@qq.com" type="button">复制邮箱</button>
+          <a href="#composer" data-mail="1945004760@qq.com">1945004760@qq.com</a>
+          <button class="copy" data-copy="1945004760@qq.com" type="button" aria-label="复制邮箱地址">邮箱</button>
         </div>
         <div class="contact__card">
           <b>代码与作品 / GitHub</b>
-          <a href="https://github.com/Mulii0124" target="_blank" rel="noopener">github.com/Mulii0124</a>
+          <span>github.com/Mulii0124</span>
+          <button class="copy" data-copy="github.com/Mulii0124" data-copy-prefix="https://" type="button" aria-label="复制仓库地址">仓库地址</button>
         </div>
         <div class="contact__card">
           <b>所在地 / Based in</b>
@@ -621,7 +621,7 @@ def build_contact():
         </div>
       </div>
 
-      <form class="composer" data-composer="1945004760@qq.com" data-reveal="up">
+      <form class="composer" id="composer" data-composer="1945004760@qq.com" data-reveal="up">
         <div class="composer__row">
           <label for="c-name">你的称呼 / Your name</label>
           <input id="c-name" name="name" type="text" autocomplete="name" placeholder="如何称呼你">

@@ -104,6 +104,8 @@ ol, ul { list-style: none; padding: 0; }
   letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--dim);
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 .on-paper .eyebrow { color: var(--dim-ink); }
 
@@ -237,9 +239,14 @@ ol, ul { list-style: none; padding: 0; }
     background: rgba(10, 10, 11, 0.97);
     border-bottom: 1px solid var(--rule);
     transform: translateY(-102%);
-    transition: transform 0.5s var(--ease);
+    visibility: hidden;
+    transition: transform 0.5s var(--ease), visibility 0s linear 0.5s;
   }
-  .nav__links.is-open { transform: translateY(0); }
+  .nav__links.is-open {
+    transform: translateY(0);
+    visibility: visible;
+    transition: transform 0.5s var(--ease), visibility 0s;
+  }
   .nav__links a {
     font-size: 0.9rem;
     padding-block: 13px;
