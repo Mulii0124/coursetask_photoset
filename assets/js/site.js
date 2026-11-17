@@ -108,7 +108,11 @@
       var el = reveals[i];
       if (el.classList.contains('is-in')) continue;
       var r = el.getBoundingClientRect();
-      if (r.top < vh * 0.92 && r.bottom > 0 && r.height > 0) {
+      /* Trigger once the element has reached the reveal line. The test must
+         NOT require the box to still be on screen: a fast scroll (or an anchor
+         jump) can move an element clean past the viewport between two scroll
+         events, and it would then stay clipped forever. */
+      if (r.top < vh * 0.92 && r.height > 0) {
         show(el);
       } else {
         next.push(el);
