@@ -21,6 +21,8 @@ SHOTS = [
     ("index-story",     "index.html", 3240),
     ("index-profile",   "index.html", 4250),
     ("index-foot",      "index.html", 4400),
+    ("begin-split",     "series-begin.html", 5000),
+    ("begin-samples",   "series-begin.html", 6200),
 ]
 
 TPL = """<!DOCTYPE html><html><head><meta charset="utf-8">

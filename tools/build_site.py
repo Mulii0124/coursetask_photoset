@@ -37,7 +37,7 @@ def _find_site():
 SITE = _find_site()
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_assets import SERIES, PLATES   # noqa: E402
+from build_assets import SERIES, PLATES, SPLITS   # noqa: E402
 
 NAME_CN = "木離"
 NAME_EN = "QIANJINGJING"
@@ -153,7 +153,7 @@ def footer():
     </div>
     <div class="foot__bottom">
       <span>© <span data-year>2026</span> %s %s · 保留所有权利</span>
-      <span>所有影像由摄影师拍摄与处理 / All frames shot &amp; edited by the photographer</span>
+      <span>所有影像由摄影师整理与处理 / All frames curated &amp; edited by the photographer</span>
     </div>
   </div>
 </footer>
@@ -248,6 +248,30 @@ def series_page(s):
                  s["lead"].replace("\n", "<br>"), s["lead_en"],
                  s["year"], s["place"], n))
 
+    # ---- a divider where the series changes character ------------------
+    split = SPLITS.get(slug)
+    split_at = split[0] if split else None
+    split_done = [False]
+
+    def divider():
+        """Return the divider block once, just before the first split plate."""
+        if not split or split_done[0]:
+            return ""
+        split_done[0] = True
+        _at, d = split
+        return """<section class="section on-ink" style="padding-block:clamp(46px,8vh,110px)">
+  <div class="u-wrap u-max">
+    <div class="split" data-reveal="up">
+      <span class="eyebrow">%s</span>
+      <h3 class="split__title">%s</h3>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(18px,2.6vw,38px);max-width:74ch">
+        <p class="lead-cn">%s</p>
+        <p class="lead-en">%s</p>
+      </div>
+    </div>
+  </div>
+</section>""" % (d["eyebrow"], d["title"], d["cn"].replace("\n", "<br>"), d["en"])
+
     # ---- plates, interleaved with text --------------------------------
     quote = ('<blockquote class="quote" data-reveal="up">%s</blockquote>'
              % s["note"].replace("手记 · ", ""))
@@ -272,11 +296,15 @@ def series_page(s):
             a, b = idx
             if a >= n or b >= n:
                 continue
+            if split_at is not None and min(a, b) >= split_at:
+                parts.append(divider())
             parts.append(duo(slug, a, b))
             used.update((a, b))
             continue
         if idx >= n:
             continue
+        if split_at is not None and idx >= split_at:
+            parts.append(divider())
         parts.append(plate(slug, idx, "full", cls))
         used.add(idx)
 
@@ -284,6 +312,8 @@ def series_page(s):
     rest = [i for i in range(n) if i not in used]
     for i in rest:
         cls = "plate--offset" if i % 2 else ""
+        if split_at is not None and i >= split_at:
+            parts.append(divider())
         parts.append(plate(slug, i, "full", cls))
 
     # ---- next series --------------------------------------------------
@@ -432,7 +462,7 @@ def build_index():
         <h3 data-reveal="up">经历</h3>
         <div class="cv" data-reveal="up">
           <div class="cv__row"><b>2022</b><span>拍下第一批照片——它们没有主题，只有顺序</span></div>
-          <div class="cv__row"><b>2023</b><span>校园成为固定拍摄地，完成「日」与「庙」两组系列，建立统一的校准流程</span></div>
+          <div class="cv__row"><b>2023</b><span>校园成为固定拍摄地，完成「日」与「庙」两组系列；同时把影楼附送的样片单独分卷标注</span></div>
           <div class="cv__row"><b>2024</b><span>重心从「拍到」转向「看到」，开始为画面加入人与叙事</span></div>
           <div class="cv__row"><b>2026</b><span>第一次长线远行，完成「旅」系列与航拍部分</span></div>
           <div class="cv__row"><b>NOW</b><span>在做「日」的三年计划——同一处校园，每年同一个窗口回去一次</span></div>
@@ -585,10 +615,13 @@ def build_about():
         <p data-reveal="up">我的方法很笨：同一个地方反复回去，每年同一个窗口，不同的天气。拍到第三年，那个地方开始有我的痕迹，
         我也开始能预判它的光。「日」系列的三年计划就是这个方法的第一次正式尝试。</p>
 
+        <p data-reveal="up">「初」这一卷里也留了八张不是我拍的照片——那是影楼寄修时附回来的样片，画面上烧着他们的水印。
+        我没有把它们删掉，也没有把它们混进自己的作品里，而是在卷二里单独标出来。整理素材和诚实地标注素材，同样是创作的一部分。</p>
+
         <h3 data-reveal="up">经历</h3>
         <div class="cv" data-reveal="up">
           <div class="cv__row"><b>2022</b><span>拍下第一批照片——它们没有主题，只有顺序</span></div>
-          <div class="cv__row"><b>2023</b><span>校园成为固定拍摄地，完成「日」与「庙」两组系列，建立统一的校准流程</span></div>
+          <div class="cv__row"><b>2023</b><span>校园成为固定拍摄地，完成「日」与「庙」两组系列；同时把影楼附送的样片单独分卷标注</span></div>
           <div class="cv__row"><b>2024</b><span>重心从「拍到」转向「看到」，开始为画面加入人与叙事</span></div>
           <div class="cv__row"><b>2025</b><span>系统整理全部底片，按四个主题重新归组（set1—set4）</span></div>
           <div class="cv__row"><b>2026</b><span>第一次长线远行，完成「旅」系列与航拍部分</span></div>
@@ -602,6 +635,7 @@ def build_about():
           <div class="cv__row"><b>航拍</b><span>DJI Mini 微型无人机（2026 年旅途中开始使用，也拍下了那张水边的人物照）</span></div>
           <div class="cv__row"><b>后期</b><span>统一对比度与饱和度校准；黑白题材单独暖调处理</span></div>
           <div class="cv__row"><b>归档</b><span>按主题分成 set1—set4 四个文件夹，与本页目录一一对应</span></div>
+          <div class="cv__row"><b>标注</b><span>非本人拍摄的素材单独分卷，并注明来路</span></div>
         </div>
 
         <p data-reveal="up" style="margin-top:28px">

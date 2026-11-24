@@ -12,8 +12,10 @@ curation of this portfolio:
 
 set1 also contains eight `retouch_*.jpg` files: those are a photography studio's
 own summer-set samples (they carry the "Pe.Daphine vortex 2023" watermark and
-show the studio's album display and a model). They are not frames shot by the
-photographer, so they are deliberately never referenced below.
+show the studio's album display and a model). They were not shot by the
+photographer, but they do belong to that folder, so they are kept — as the
+clearly labelled second half of the "begin" series, behind a SPLITS divider —
+instead of being passed off as her own work.
 
 One editorial grade is applied so that phone, Olympus and drone frames from
 four different years read as a single commissioned set. Output: progressive
@@ -71,11 +73,15 @@ SERIES = [
                 "有一只坐在干草里的猫，有夜里从高处看下去的城市灯网，"
                 "有一个写着「40」的限速牌，一张被电线切开的天空，"
                 "还有一池被倒过来的柳。\n"
-                "我按拍下来的顺序把它们放在一起——那顺序本身就是我学会看的时间线。",
+                "我按拍下来的顺序把它们放在一起——那顺序本身就是我学会看的时间线。\n"
+                "卷末还压着八张不是我拍的照片：影楼寄修时附回来的样片。"
+                "它们单独成卷，来路写在卷二的标题下面。",
         "lead_en": "The first roll had no composition and no theme.\n"
                    "A cat in dry grass. A city seen from above at night. "
                    "A speed limit sign. A sky cut open by wires. A pool with the willows upside down.\n"
-                   "I keep them in the order I shot them — that order is the timeline of learning to see.",
+                   "I keep them in the order I shot them — that order is the timeline of learning to see.\n"
+                   "At the end of the roll sit eight frames I did not shoot: samples that came back "
+                   "with the studio's prints. They get a volume of their own, with their origin stated.",
         "note": "手记 · 第一卷：还没有构图的时候",
     },
     {
@@ -137,6 +143,14 @@ PLATES = {
         ("S1_02", "04", "限速四十", "Forty kilometres"),
         ("S1_04", "05", "被电线切开的天空", "A sky cut by wires"),
         ("S1_05", "06", "石头上的孩子", "A child on the stone"),
+        ("S1_06", "07", "白花", "White blossoms"),
+        ("S1_07", "08", "松针与光", "Pine needles in the sun"),
+        ("S1_08", "09", "树下", "Under the trees"),
+        ("S1_09", "10", "园墙", "The garden wall"),
+        ("S1_10", "11", "花树", "A flowering tree"),
+        ("S1_11", "12", "花束", "A bouquet"),
+        ("S1_12", "13", "相册陈列", "The studio album wall"),
+        ("S1_13", "14", "花摊", "A flower stall"),
     ],
     "days": [
         ("S2_14", "01", "绣球", "Hydrangea"),
@@ -185,6 +199,24 @@ PLATES = {
         ("S4_04", "08", "香与莲", "Incense and lotus"),
         ("S4_05", "09", "竹林", "Bamboo"),
     ],
+}
+
+# A text divider inserted before the given plate index, for the point where a
+# series changes character part-way through.
+#   SPLITS[slug] = (plate index, {eyebrow, title, cn, en})
+SPLITS = {
+    "begin": (6, {
+        "eyebrow": "卷二 / PART TWO",
+        "title": "影楼样片",
+        "cn": "这八张是影楼寄修时附回来的样片，每一张上都烧着"
+              "「Pe.Daphine vortex 2023」的水印。\n"
+              "它们不是我拍的。留在这一卷里，是因为它们本来就躺在这个文件夹中——"
+              "与其假装没有，不如把来路写清楚。",
+        "en": "These eight frames came back with the studio's prints, every one of "
+              "them burned with the \"Pe.Daphine vortex 2023\" watermark.\n"
+              "They are not mine. They stay in this roll because they were already in "
+              "the folder — better to say where they came from than to leave them out.",
+    }),
 }
 
 # full-bleed / special images
