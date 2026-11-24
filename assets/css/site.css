@@ -467,6 +467,8 @@ ol, ul { list-style: none; padding: 0; }
   gap: 4px 14px;
   width: 100%;
   text-align: left;
+  text-decoration: none;
+  color: inherit;
   padding: clamp(16px, 2.6vh, 28px) 0;
   border-bottom: 1px solid var(--rule-ink);
   position: relative;
@@ -517,7 +519,7 @@ ol, ul { list-style: none; padding: 0; }
   position: relative;
   overflow: hidden;
   width: 100%;
-  height: min(70vh, 720px);
+  height: min(62vh, 640px);
   background: var(--ink-2);
 }
 .slot__img {
@@ -543,20 +545,41 @@ ol, ul { list-style: none; padding: 0; }
 }
 .cat__cap {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 8px 20px;
+  align-items: baseline;
   padding-top: 16px;
   font-size: 0.74rem;
   letter-spacing: 0.06em;
   color: var(--dim-ink);
 }
 .cat__cap b { font-family: var(--serif); font-weight: 400; font-size: 0.95rem; letter-spacing: 0.1em; color: var(--ink); }
-.cat__cap span:last-child { font-family: var(--display); letter-spacing: 0.2em; }
+.cat__cap > span { font-family: var(--display); letter-spacing: 0.2em; }
+.cat__cap-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 3px;
+  white-space: nowrap;
+  transition: color 0.4s var(--ease);
+}
+.cat__cap-link i { font-style: normal; transition: transform 0.5s var(--ease); }
+.cat__cap-link:hover { color: var(--accent); }
+.cat__cap-link:hover i { transform: translateX(5px); }
 
 @media (max-width: 900px) {
   .cat { grid-template-columns: minmax(0, 1fr); }
   .cat__stage { position: static; }
   .slot { height: min(58vh, 480px); }
+  .cat__cap { grid-template-columns: minmax(0, 1fr) auto; }
+  .cat__cap-link { grid-column: 1 / -1; justify-self: start; margin-top: 4px; }
 }
 
 /* ---------- 10. Text interlude (breathing room) ---------- */
@@ -644,6 +667,12 @@ ol, ul { list-style: none; padding: 0; }
 /* ---------- 12. Plates (series pages) ---------- */
 .plate {
   margin-block: clamp(70px, 13vh, 170px);
+}
+/* a single photograph should sit on the page with air around it,
+   never run from edge to edge */
+.plate--full {
+  max-width: min(1160px, 78vw);
+  margin-inline: auto;
 }
 .plate__frame {
   position: relative;

@@ -195,7 +195,7 @@ def plate(slug, idx, layout="full", extra_class=""):
     frame_cls = "plate__frame plate__frame--%s" % rc
     cap = ('<div class="plate__cap"><b>%s</b><span>%s</span></div>' % (cn, en))
     return """<div class="u-wrap u-max">
-<figure class="plate %s" data-reveal="up">
+<figure class="plate plate--full %s" data-reveal="up">
   <div class="%s">%s</div>
   %s
 </figure>
@@ -313,12 +313,13 @@ def build_index():
     s = SERIES
     cat_items = []
     for x in s:
-        cat_items.append("""<li><button class="cat__item%s" data-series data-src="assets/img/%s/cover-%s.jpg" data-alt="%s %s" data-cap-cn="%s · %s" data-cap-en="%s" data-cap-no="%s">
+        cat_items.append("""<li><a class="cat__item%s" href="series-%s.html" data-series data-src="assets/img/%s/cover-%s.jpg" data-alt="%s %s" data-cap-cn="%s · %s" data-cap-en="%s" data-cap-no="%s">
           <span class="cat__num">%s</span>
           <span class="cat__cn">%s</span>
           <span class="cat__meta">%s <i>·</i> %s</span>
-        </button></li>""" % (
+        </a></li>""" % (
             " is-active" if x is s[0] else "",
+            x["slug"],
             x["slug"], x["slug"], x["cn"], x["title_en"], x["cn"], x["place"], x["en"], x["num"],
             x["num"], x["cn"], x["year"], x["place"]))
 
@@ -357,7 +358,7 @@ def build_index():
       <p class="section__latin">Four series · %s—%s</p>
     </div>
     <div class="cat">
-      <ol class="cat__list" role="listbox" aria-label="系列目录" data-reveal="up">
+      <ol class="cat__list" aria-label="系列目录" data-reveal="up">
         %s
       </ol>
       <div class="cat__stage">

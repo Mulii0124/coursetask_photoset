@@ -10,7 +10,7 @@ curation of this portfolio:
     set4 古庙              9 frames
     作者                   1 frame   (author portrait)
 
-set1 also contains seven `retouch_*.jpg` files: those are a photography studio's
+set1 also contains eight `retouch_*.jpg` files: those are a photography studio's
 own summer-set samples (they carry the "Pe.Daphine vortex 2023" watermark and
 show the studio's album display and a model). They are not frames shot by the
 photographer, so they are deliberately never referenced below.

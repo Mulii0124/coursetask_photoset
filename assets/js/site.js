@@ -142,7 +142,8 @@
     function highlight(item) {
       items.forEach(function (el) {
         el.classList.toggle('is-active', el === item);
-        el.setAttribute('aria-selected', el === item ? 'true' : 'false');
+        if (el === item) { el.setAttribute('aria-current', 'true'); }
+        else { el.removeAttribute('aria-current'); }
       });
     }
 
@@ -156,8 +157,19 @@
       b.textContent = cn;
       var s = document.createElement('span');
       s.textContent = no + ' / ' + en;
+      var a = document.createElement('a');
+      a.className = 'cat__cap-link';
+      a.href = item.getAttribute('href') || '#';
+      a.setAttribute('aria-label', '进入 ' + cn + ' 系列');
+      var at = document.createElement('span');
+      at.textContent = '进入系列';
+      var ar = document.createElement('i');
+      ar.textContent = '→';
+      a.appendChild(at);
+      a.appendChild(ar);
       cap.appendChild(b);
       cap.appendChild(s);
+      cap.appendChild(a);
     }
 
     function setSeries(item) {
@@ -203,8 +215,8 @@
 
     var hoverTimer = null;
     items.forEach(function (item) {
-      item.setAttribute('role', 'option');
-      item.setAttribute('aria-selected', item.classList.contains('is-active') ? 'true' : 'false');
+      /* The catalogue entries are real links: the pointer previews the cover,
+         the click opens the series page itself. */
       item.addEventListener('mouseenter', function () {
         window.clearTimeout(hoverTimer);
         hoverTimer = window.setTimeout(function () { setSeries(item); }, 140);
