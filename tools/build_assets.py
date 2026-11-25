@@ -10,12 +10,12 @@ curation of this portfolio:
     set4 古庙              9 frames
     作者                   1 frame   (author portrait)
 
-set1 also contains eight `retouch_*.jpg` files: those are a photography studio's
-own summer-set samples (they carry the "Pe.Daphine vortex 2023" watermark and
-show the studio's album display and a model). They were not shot by the
-photographer, but they do belong to that folder, so they are kept — as the
-clearly labelled second half of the "begin" series, behind a SPLITS divider —
-instead of being passed off as her own work.
+set1 also contains eight `retouch_*.jpg` files: a second batch from the same
+period — white blossoms, pine needles, a garden wall, a bouquet, an album wall
+and a flower stall. Every one of them carries the "Pe.Daphine vortex 2023" mark
+the photographer burned into her own pictures, so it stays visible as her
+signature. They are kept as the clearly separated second half of the "begin"
+series, behind a SPLITS divider.
 
 One editorial grade is applied so that phone, Olympus and drone frames from
 four different years read as a single commissioned set. Output: progressive
@@ -74,14 +74,16 @@ SERIES = [
                 "有一个写着「40」的限速牌，一张被电线切开的天空，"
                 "还有一池被倒过来的柳。\n"
                 "我按拍下来的顺序把它们放在一起——那顺序本身就是我学会看的时间线。\n"
-                "卷末还压着八张不是我拍的照片：影楼寄修时附回来的样片。"
-                "它们单独成卷，来路写在卷二的标题下面。",
+                "卷二接着同一段时间里的另一批：白花、松针、园墙、花束，"
+                "还有一面挂满相册的墙和一个花摊。\n"
+                "每一张上都留着我自己打的「Pe.Daphine vortex 2023」——那是我给自己留的记号。",
         "lead_en": "The first roll had no composition and no theme.\n"
                    "A cat in dry grass. A city seen from above at night. "
                    "A speed limit sign. A sky cut open by wires. A pool with the willows upside down.\n"
                    "I keep them in the order I shot them — that order is the timeline of learning to see.\n"
-                   "At the end of the roll sit eight frames I did not shoot: samples that came back "
-                   "with the studio's prints. They get a volume of their own, with their origin stated.",
+                   "The second volume carries another batch from the same stretch of time: white blossoms, "
+                   "pine needles, a garden wall, a bouquet, a wall of albums, a flower stall.\n"
+                   "Each one keeps the \"Pe.Daphine vortex 2023\" mark I burned in myself — my own signature on my own pictures.",
         "note": "手记 · 第一卷：还没有构图的时候",
     },
     {
@@ -149,7 +151,7 @@ PLATES = {
         ("S1_09", "10", "园墙", "The garden wall"),
         ("S1_10", "11", "花树", "A flowering tree"),
         ("S1_11", "12", "花束", "A bouquet"),
-        ("S1_12", "13", "相册陈列", "The studio album wall"),
+        ("S1_12", "13", "相册墙", "Albums on the wall"),
         ("S1_13", "14", "花摊", "A flower stall"),
     ],
     "days": [
@@ -207,15 +209,15 @@ PLATES = {
 SPLITS = {
     "begin": (6, {
         "eyebrow": "卷二 / PART TWO",
-        "title": "影楼样片",
-        "cn": "这八张是影楼寄修时附回来的样片，每一张上都烧着"
-              "「Pe.Daphine vortex 2023」的水印。\n"
-              "它们不是我拍的。留在这一卷里，是因为它们本来就躺在这个文件夹中——"
-              "与其假装没有，不如把来路写清楚。",
-        "en": "These eight frames came back with the studio's prints, every one of "
-              "them burned with the \"Pe.Daphine vortex 2023\" watermark.\n"
-              "They are not mine. They stay in this roll because they were already in "
-              "the folder — better to say where they came from than to leave them out.",
+        "title": "花与影",
+        "cn": "卷二是同一段时间里的另一批：白花、松针与光、园墙、花束，\n"
+              "还有一面挂满相册的墙和一个花摊。\n"
+              "每一张上都烧着我自己打的「Pe.Daphine vortex 2023」——\n"
+              "那是我给自己留的记号，也是那段时间里唯一想留下的东西。",
+        "en": "The second volume is another batch from the same stretch of time: white blossoms, "
+              "pine needles in the sun, a garden wall, a bouquet, a wall of albums, a flower stall.\n"
+              "Each frame carries the \"Pe.Daphine vortex 2023\" mark I burned in myself — "
+              "my signature on my own pictures, and the only thing I wanted to keep from those months.",
     }),
 }
 

@@ -519,7 +519,7 @@ ol, ul { list-style: none; padding: 0; }
   position: relative;
   overflow: hidden;
   width: 100%;
-  height: min(62vh, 640px);
+  height: min(54vh, 560px);
   background: var(--ink-2);
 }
 .slot__img {
@@ -671,8 +671,20 @@ ol, ul { list-style: none; padding: 0; }
 /* a single photograph should sit on the page with air around it,
    never run from edge to edge */
 .plate--full {
-  max-width: min(1160px, 78vw);
+  max-width: min(1040px, 70vw);
   margin-inline: auto;
+}
+/* a portrait frame has to be narrower than a landscape one, otherwise
+   its height alone runs past the screen and the photo stops feeling
+   like a photograph on a page */
+.plate--full.plate--tall {
+  max-width: min(660px, 46vw);
+}
+/* on a phone the page is already narrow: keep the margin, but let the
+   photograph own most of the width so it does not read as a thumbnail */
+@media (max-width: 760px) {
+  .plate--full { max-width: min(1040px, 86vw); }
+  .plate--full.plate--tall { max-width: min(660px, 74vw); }
 }
 .plate__frame {
   position: relative;
