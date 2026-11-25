@@ -76,7 +76,12 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
-img { display: block; max-width: 100%; }
+/* height:auto is load-bearing: the width/height attributes on every <img>
+   are presentational hints, so a bare `width:100%` would pin the height to
+   the attribute value and stretch the picture. Rules that really want a
+   fixed box (hero, story, plates, works) set their own height and
+   object-fit below. */
+img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 h1, h2, h3, h4, p, figure, blockquote, ol, ul { margin: 0; }
@@ -748,7 +753,7 @@ ol, ul { list-style: none; padding: 0; }
 /* ---------- 13. Photographer profile (two columns) ---------- */
 .profile { display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); gap: clamp(28px, 5vw, 80px); align-items: start; }
 .profile__portrait { position: sticky; top: 92px; }
-.profile__portrait img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; filter: grayscale(1) contrast(1.06) brightness(0.98); }
+.profile__portrait img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; filter: grayscale(1) contrast(1.06) brightness(0.98); }
 .profile__portrait figcaption { margin-top: 12px; font-size: 0.68rem; letter-spacing: 0.18em; color: var(--dim-ink); }
 .profile__text > * + * { margin-top: 26px; }
 .profile__text h3 {
@@ -785,7 +790,7 @@ ol, ul { list-style: none; padding: 0; }
 .entry__body h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.15rem, 2.2vw, 1.65rem); letter-spacing: 0.09em; margin-bottom: 14px; }
 .entry__body p { font-size: 0.93rem; line-height: 1.95; color: var(--dim-ink); max-width: 56ch; }
 .entry__body p + p { margin-top: 16px; }
-.entry__body img { margin-top: 24px; width: 100%; }
+.entry__body img { margin-top: 24px; width: 100%; height: auto; }
 .entry__body figcaption { margin-top: 10px; font-size: 0.68rem; letter-spacing: 0.16em; color: var(--dim-ink); }
 @media (max-width: 800px) { .entry { grid-template-columns: minmax(0, 1fr); } }
 

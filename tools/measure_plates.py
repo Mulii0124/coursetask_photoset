@@ -9,6 +9,7 @@ Usage: python measure_plates.py [width] [height]   (default 1440 x 900)
 """
 import json
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -84,6 +85,9 @@ class Handler(SimpleHTTPRequestHandler):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    # a warm profile can hand back a stale stylesheet, which would make the
+    # measured plate widths describe yesterday's CSS — start clean
+    shutil.rmtree(PROFILE, ignore_errors=True)
     with open(PROBE, "w", encoding="utf-8", newline="\n") as f:
         f.write(PROBE_HTML % (W, H))
 

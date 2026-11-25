@@ -53,7 +53,11 @@
   邮箱与仓库地址在 HTML 里是页内锚点与纯文本，由 `assets/js/site.js` 在点击时
   组装邮件客户端链接；仓库地址通过「复制」按钮取用。
 - 字体自托管于 `assets/fonts/`（Anton、Archivo、Noto Serif SC），不依赖外部 CDN。
-- 页面结构清晰、标签使用规范；每个 `img` 都带 `width` / `height`，避免布局跳动。
+- **页面结构清晰、标签使用规范**；每个 `img` 都带 `width` / `height`，避免布局跳动。
+  复位规则里的 `height: auto` 是必需的：HTML 上的 `width` / `height` 属性属于
+  表现性提示，只写 `width: 100%` 会把高度钉死在属性值上、把画面拉变形；
+  需要固定画框的地方（首屏、重点故事、系列图版、作品页）各自声明
+  `height` 与 `object-fit: cover`，属于有意的构图裁切，不是变形。
 - `.gitattributes` 规定所有文本资源以 LF 存储，网页源码在仓库与线上完全一致。
 
 ## 素材来源与整理
@@ -101,6 +105,7 @@ OPPO A9x（2022 年第一批）、iPhone（2026 年路上的随手拍）、DJI M
 | `audit_site.py` | 本地：引用是否全为相对路径、目标是否存在、页面是否互达 |
 | `qa_mobile.py` | 真机窄屏（390px）与桌面（1440px）逐页测量：横向溢出、破图、图片解码 |
 | `measure_plates.py` | 量出每张图版实际渲染的宽高，确认照片没有大过屏幕 |
+| `check_ratio.py` | 逐张比对渲染框与原图比例，区分「被拉伸变形」与「有意裁切」 |
 | `shoot.py` / `shoot_mobile.py` / `shoot_scroll.py` | 桌面、窄屏与首屏以下区块截图，用于视觉走查 |
 | `section_map.py` | 量出各区块的实际纵向位置，供滚动截图对准 |
 | `verify_live.py` | 公网抓取：页面状态码、每个资源的状态码、绝对路径泄漏 |
@@ -112,6 +117,11 @@ OPPO A9x（2022 年第一批）、iPhone（2026 年路上的随手拍）、DJI M
 用 `--window-size=390` 截出来的其实是一张 504px 版面再裁切到 390px 的假图。
 `qa_mobile.py` 改用固定宽度的 iframe 渲染，得到真正的 390px 视口，
 因此报告里的 `innerWidth` 与溢出数据是可信的。
+
+另一个坑：Edge 的磁盘缓存可能直接返回旧样式表，让所有测量描述的是改版之前的
+版面。`qa_mobile.py`、`measure_plates.py`、`check_ratio.py` 因此在每次运行前
+都会清掉浏览器 profile，并给本地服务器加上 `Cache-Control: no-store` ——
+否则「改完再测」的结果可能根本没测到新的 CSS。
 
 ## 本地预览
 

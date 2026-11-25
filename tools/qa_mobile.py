@@ -14,6 +14,7 @@ Reports for every page:
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import threading
@@ -92,6 +93,9 @@ class Handler(SimpleHTTPRequestHandler):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    # a warm profile can serve a stale stylesheet and make the overflow
+    # numbers describe the wrong layout — start clean
+    shutil.rmtree(PROFILE, ignore_errors=True)
     with open(PROBE, "w", encoding="utf-8", newline="\n") as f:
         f.write(PROBE_HTML % (W, H))
 
